@@ -83,6 +83,7 @@ export async function createProduct(req:Request, res: Response) {
     // Setting properties to the body and saving the info in a variable
     req.body.imageProductName = imageName
     req.body.imageProductUrl = `https://project01-vini.s3.us-east-2.amazonaws.com/${imageName}`
+    req.body.imageProductOriginalName = req.file?.originalname
     req.body.price = Number(req.body.price)
     req.body.rating = Number(req.body.rating)
     const productData = req.body
@@ -106,6 +107,7 @@ export async function updateProduct(req:Request, res: Response) {
     const productId = Number(req.params.id)
     req.body.price = Number(req.body.price)
     req.body.rating = Number(req.body.rating)
+    req.body.imageProductOriginalName = req.file?.originalname
     const productData = req.body
 
     // Update the product info inside the Railway database

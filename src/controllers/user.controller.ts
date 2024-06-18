@@ -85,6 +85,7 @@ export async function createUser(req:Request, res: Response) {
     // Setting properties to the body
     req.body.imageUserName = imageName
     req.body.imageUserUrl = `https://project01-vini.s3.us-east-2.amazonaws.com/${imageName}`
+    req.body.imageUserOriginalName = req.file?.originalname
 
     // Saving the user into Railway database using prisma
     const user = await userClient.create({
@@ -104,7 +105,8 @@ export async function updateUser(req:Request, res: Response) {
   try {
     // To make sure that email is all lower case
     req.body.email = req.body.email.toLowerCase()
-    
+
+    req.body.imageUserOriginalName = req.file?.originalname    
     const userId = Number(req.params.id)
     const userData = req.body
 
