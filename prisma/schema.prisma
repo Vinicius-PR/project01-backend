@@ -20,7 +20,6 @@ model User {
   phone                   String
   job                     String
   imageUserName           String
-  imageUserOriginalName   String
   imageUserUrl            String
 }
 

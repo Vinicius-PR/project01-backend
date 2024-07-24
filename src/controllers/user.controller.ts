@@ -60,32 +60,14 @@ export async function getUserById(req:Request, res: Response) {
 export async function createUser(req:Request, res: Response) {
   
   try {
-    // Resize the image
-    const buffer = await sharp(req.file?.buffer).resize({
-      height: 500,
-      width: 500,
-      position: 'top',
-      fit: 'cover'
-    }).toBuffer()
-
-    // Set params and run send command to save the image inside s3 buket AWS
     const imageName = generateRandomImageName()
-    const params = {
-      Bucket: bucketName,
-      Key: imageName,
-      Body: buffer,
-      ContentType: req.file?.mimetype
-    }
-    const command = new PutObjectCommand(params)
-    await s3.send(command)
 
     // To make sure that email is all lower case
     req.body.email = req.body.email.toLowerCase()
 
     // Setting properties to the body
     req.body.imageUserName = imageName
-    req.body.imageUserUrl = `https://project01-vini.s3.us-east-2.amazonaws.com/${imageName}`
-    req.body.imageUserOriginalName = req.file?.originalname
+    req.body.imageUserUrl = ''
 
     // Saving the user into Railway database using prisma
     const user = await userClient.create({
@@ -106,7 +88,30 @@ export async function updateUser(req:Request, res: Response) {
     // To make sure that email is all lower case
     req.body.email = req.body.email.toLowerCase()
 
-    req.body.imageUserOriginalName = req.file?.originalname    
+    const userId = Number(req.params.id)
+    const userData = req.body
+
+    // Update the user info inside the Railway database
+    const user = await userClient.update({
+      where: {
+        id: userId
+      },
+      data: userData
+    })
+
+    res.status(200).json({data: user})
+
+  } catch (error) {
+    console.error('Error updating the user: ', error)
+  }
+}
+
+// Update the Image of the User
+
+export async function updateUserImage(req:Request, res: Response) {
+  try {
+    req.body.imageUserName = req.file?.originalname
+    req.body.imageUserUrl = `https://project01-vini.s3.us-east-2.amazonaws.com/${req.body.imageUserName}`
     const userId = Number(req.params.id)
     const userData = req.body
 
@@ -136,10 +141,9 @@ export async function updateUser(req:Request, res: Response) {
     const command = new PutObjectCommand(params)
     await s3.send(command)
 
-    res.status(200).json({data: user})
-
+    res.status(200).json({data: {}})
   } catch (error) {
-    console.error('Error updating the user: ', error)
+    console.error('Error updating the Image user: ', error)
   }
 }
 
